@@ -34,7 +34,6 @@ dist-ssr
 
 # Ruby/Bundler
 Gemfile.lock
-.bundle/
 vendor/bundle/
 
 # OS
