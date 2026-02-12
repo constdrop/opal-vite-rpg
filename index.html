@@ -5,18 +5,23 @@
   <title>Ruby RPG 第1回</title>
 </head>
 <body>
-  <h1>はじめてのRubyプログラミング</h1>
-  
+  <h1>Ruby RPG 第2回 バトル編</h1>
+
   <div style="margin-bottom: 10px;">
     <label for="player-name">冒険者の名前：</label>
     <input type="text" id="player-name" placeholder="名前を入力">
   </div>
 
-  <div id="message-area" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-    ここにメッセージが出ます
+  <div id="enemy-area" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
+    <strong>スライム</strong> <br>
+    HP: <span id="enemy-hp">30</span>
   </div>
 
-  <button id="action-button">冒険に出る！</button>
+  <div id="message-area" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; height: 50px;">
+    スライムが現れた！
+  </div>
+
+  <button id="action-button">攻撃する！</button>
 
   <script type="module" src="/app/main_loader.js"></script>
 </body>
