@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Ruby RPG 第2回</title>
+  <title>Ruby RPG 第3回</title>
 </head>
 <body>
-  <h1>Ruby RPG 第2回 バトル編</h1>
+  <h1>Ruby RPG 第3回 ループ編</h1>
 
   <div style="margin-bottom: 10px;">
     <label for="player-name">冒険者の名前：</label>
@@ -13,15 +13,15 @@
   </div>
 
   <div id="enemy-area" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
-    <strong>スライム</strong> <br>
-    HP: <span id="enemy-hp">30</span>
+    <strong>スライム軍団</strong> <br>
+    いまの敵のHP: <span id="enemy-hp">---</span>
   </div>
 
-  <div id="message-area" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; height: 50px;">
-    スライムが現れた！
+  <div id="log-area" style="border: 2px solid #333; padding: 10px; height: 200px; overflow-y: scroll; background: #eee;">
+    ここにバトルの記録が出ます...
   </div>
 
-  <button id="action-button">攻撃する！</button>
+  <button id="action-button" style="margin-top: 10px;">冒険に出る！</button>
 
   <script type="module" src="/app/main_loader.js"></script>
 </body>
