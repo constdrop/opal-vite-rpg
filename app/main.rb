@@ -2,62 +2,87 @@
 require 'opal'
 require 'native'
 
-# 1. HTMLの要素を見つける（メソッドの中でも使うので @ をつけます）
+# --- 1. 設計図（クラス）の作成 ---
+
+# プレイヤーの設計図
+class Player
+  attr_accessor :name
+  def initialize(name)
+    @name = name
+  end
+end
+
+# モンスターの設計図
+class Monster
+  attr_accessor :name, :hp
+  def initialize(name, hp)
+    @name = name
+    @hp = hp
+  end
+
+  # ダメージを受けるという「動き」も設計図に入れておく
+  def receive_damage(amount)
+    @hp -= amount
+    @hp = 0 if @hp < 0
+  end
+end
+
+# --- 2. HTML要素の取得 ---
 @log_area = `document.getElementById('log-area')`
 @button = `document.getElementById('action-button')`
 @special_button = `document.getElementById('special-button')`
 @player_name_input = `document.getElementById('player-name')`
 @enemy_hp_span = `document.getElementById('enemy-hp')`
 
-# 攻撃のダメージを計算する部品
-def calculate_damage(min, max)
-  rand(min..max)
-end
-
-# 「攻撃して、HPを減らして、ログを出す」という一連の動きをまとめた部品
-def attack(player_name, min, max)
-  # ダメージを計算する
-  damage = calculate_damage(min, max)
+# --- 3. 攻撃の仕組み（メソッド） ---
+# 引数に「playerオブジェクト」と「target（モンスター）オブジェクト」を渡すように変更
+def attack(player, target, min, max)
+  damage = rand(min..max)
   
-  # HPを減らす
-  @enemy_hp -= damage
-  @enemy_hp = 0 if @enemy_hp < 0
+  # モンスターにダメージを与える命令を出す
+  target.receive_damage(damage)
   
   # 画面（HP表示）を更新
-  `#{@enemy_hp_span}.innerText = #{@enemy_hp}`
+  `#{@enemy_hp_span}.innerText = #{target.hp}`
   
   # ログを表示
-  msg = "#{player_name}の攻撃！#{damage}のダメージ！(残りHP:#{@enemy_hp})<br>"
+  msg = "#{player.name}の攻撃！#{target.name}に#{damage}のダメージ！(残りHP:#{target.hp})<br>"
   `#{@log_area}.innerHTML += #{msg}`
   `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
 end
 
-# 2. ボタンが押された時の処理（イベント）
+# --- 4. ボタンが押された時の処理 ---
 `#{@button}.addEventListener('click', function() {`
-  player_name = `#{@player_name_input}.value`
+  name = `#{@player_name_input}.value`
 
-  if player_name == ""
+  if name == ""
     `#{@log_area}.innerHTML = "名前を入力してください！"`
   else
     `#{@log_area}.innerHTML = "--- 冒険スタート！ ---<br>"`
     `#{@button}.disabled = true`
     
+    # ★ 設計図から実体（インスタンス）を作る！
+    @player = Player.new(name)
     @enemy_count = 1
-    @enemy_hp = 30
+    @enemy = Monster.new("スライム#{@enemy_count}", 30)
+    
+    `#{@enemy_hp_span}.innerText = #{@enemy.hp}`
 
     timer = `setInterval(function() {`
       
-      # ★作った「attack」メソッドを呼び出す！
-      attack(player_name, 5, 15)
+      # オブジェクトを渡して攻撃！
+      attack(@player, @enemy, 5, 15)
 
-      if @enemy_hp <= 0
-        finish_msg = "<b>スライム#{@enemy_count}をたおした！</b><br>"
+      if @enemy.hp <= 0
+        finish_msg = "<b>#{@enemy.name}をたおした！</b><br>"
         `#{@log_area}.innerHTML += #{finish_msg}`
         
         if @enemy_count < 3
           @enemy_count += 1
-          @enemy_hp = 30 + (@enemy_count * 10)
-          next_msg = ">> 次の敵があらわれた！<br>"
+          # 新しいモンスターを生成して入れ替える
+          @enemy = Monster.new("スライム#{@enemy_count}", 30 + (@enemy_count * 10))
+          
+          next_msg = ">> 次の敵、#{@enemy.name}があらわれた！<br>"
           `#{@log_area}.innerHTML += #{next_msg}`
         else
           `clearInterval(#{timer})`
@@ -70,14 +95,11 @@ end
   end
 `})`
 
-# 必殺技ボタン（クリックした瞬間に強い攻撃！）
+# 必殺技ボタン
 `#{@special_button}.addEventListener('click', function() {`
-  player_name = `#{@player_name_input}.value`
-  
-  # 名前がないときや、敵がいないときは何もしない
-  if player_name != "" && @enemy_hp && @enemy_hp > 0
+  # @player と @enemy が存在し、敵が生きているときだけ発動
+  if @player && @enemy && @enemy.hp > 0
     `#{@log_area}.innerHTML += "<b>【必殺】ギガRubyスラッシュ！！</b><br>"`
-    # ★通常攻撃より強いダメージ（30〜50）で attack メソッドを呼び出す
-    attack(player_name, 30, 50)
+    attack(@player, @enemy, 30, 50)
   end
 `})`
