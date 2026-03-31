@@ -13,7 +13,7 @@
 ### 1. Webで「RubyInstaller」を検索して、最新の安定版をダウンロード  
 - Ruby+Devkit(バージョン)(×64)というものを選びます。一部のパソコンは(arm)を選ばないといけないため注意してください。
 
-![alt text](image-1.png)
+![RubyInstallersページ](images/step01-1_RubyInstallers.png)
 
 - ダウンロードしたいものをクリックすることでダウンロードできます。
 
@@ -22,11 +22,11 @@
 > ケバブメニューとは  
 画面の右上にある三つの点のことです。ちなみに三本線はハンバーガーメニューといいます。  
 
-![alt text](<スクリーンショット 2026-03-29 110724.png>)
+![ダウンロード](images/step01-2_Download.png)
 
 - ダウンロードのページに戻りケバブメニューから「保持」を選びます。そして下の図の「保持する」を押してください。
-- 
-![alt text](image-2.png)
+
+![保持する](images/step01-3_DownloadKeep.png)
 
 - その後は出てきた画面の指示に従う。
 
@@ -36,14 +36,14 @@ Windowsなら「エクスプローラー→ダウンロード」、Macなら「F
   
 - インストーラーを実行後下の画面が表示されます。「Install for all users」というほうを選びましょう。
 
-![alt text](<スクリーンショット 2026-03-28 181906.png>)
+![Select install mode](images/step01-4_SelectInstallMode.png)
 
 - その後は基本的にオプションの内容を変更せずに進めましょう。  
 
 - Rubyはスタートから開くことができます。  
 開くと下の図のような画面が出てくるので左上のものを選び、Enterを押してください。
 
-![alt text](<スクリーンショット 2026-03-29 094501.png>)
+![Ruby起動画面](images/step01-5_RubyWindow.png)
 
 ### 3. 途中でPATHに追加するチェックが出たらオンにする  
 
