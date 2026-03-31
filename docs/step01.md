@@ -59,12 +59,12 @@ ruby -v
 ## 2. WindowsにNode.jsを入れる
 
 ### 1. Webで「Node.js LTS」を検索して、LTS版をダウンロード
-- Webを開くと下の画面が出てくるので「Windows Installer (.msi)」を押し、ダウンロードする。
+- Webを開くと下の画面が出てくるので「Windows Installer (.msi)」を押し、ダウンロードしましょう。
 
-![alt text](<スクリーンショット 2026-03-29 200034.png>)
+![Node.jsダウンロードページ](images/step01-6_NodeJSDownload.png)
 
 ### 2. インストーラーを実行してNode.jsを入れる
-- Rubyを入れた時と同じ要領で入れる。  
+- Rubyを入れた時と同じ要領で入れることができます。  
 
 インストール確認:
 
@@ -75,9 +75,9 @@ npm -v
 
 バージョンが表示されればOKです。  
 > できなかった場合  
-下の図のようにコマンドプロンプトを開いて再度試す。
+下の図のようにコマンドプロンプトを追加で開いて再度試してください。
 
-![alt text](<スクリーンショット 2026-03-29 201511.png>)
+![コマンドプロンプト追加](images/step01-7_CommandPromptAdd.png)
 
 ## 3. Gitを入れる
 
