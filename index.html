@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Ruby RPG 第5回</title>
+  <title>Ruby RPG 第6回</title>
 </head>
 <body>
-  <h1>Ruby RPG 第5回 クラスとオブジェクト編</h1>
+  <h1>Ruby RPG 第6回 演出編（DOM操作）</h1>
 
   <div style="margin-bottom: 10px;">
     <label for="player-name">冒険者の名前：</label>
@@ -14,8 +14,15 @@
 
   <div id="enemy-area" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
     <strong>モンスター</strong> <br>
+    
+    <div style="width: 100%; height: 20px; background-color: #ccc; border-radius: 10px; overflow: hidden;">
+      <div id="enemy-hp-bar" style="width: 100%; height: 100%; background-color: #4caf50; transition: width 0.3s;"></div>
+    </div>
+
     いまの敵のHP: <span id="enemy-hp">---</span>
   </div>
+
+  <div id="flash-panel" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: red; opacity: 0; pointer-events: none; transition: opacity 0.1s;"></div>
 
   <div id="log-area" style="border: 2px solid #333; padding: 10px; height: 200px; overflow-y: scroll; background: #eee;">
     ここにバトルの記録が出ます...

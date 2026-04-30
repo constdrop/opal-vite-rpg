@@ -33,18 +33,34 @@ end
 @special_button = `document.getElementById('special-button')`
 @player_name_input = `document.getElementById('player-name')`
 @enemy_hp_span = `document.getElementById('enemy-hp')`
+@hp_bar = `document.getElementById('enemy-hp-bar')`
+@flash_panel = `document.getElementById('flash-panel')`
 
 # --- 3. 攻撃の仕組み（メソッド） ---
-# 引数に「playerオブジェクト」と「target（モンスター）オブジェクト」を渡すように変更
 def attack(player, target, min, max)
-  damage = rand(min..max)
-  
-  # モンスターにダメージを与える命令を出す
+damage = rand(min..max)
   target.receive_damage(damage)
   
-  # 画面（HP表示）を更新
+  # 1. HPバーの長さを計算（現在のHP / 最大HP * 100）
+  # ※ 第5回のMonsterクラスに @max_hp を追加しておくと便利です
+  percentage = (target.hp.to_f / 30 * 100).to_i # 今回は最大30と仮定
+  `#{@hp_bar}.style.width = #{percentage} + "%"`
+
+  # 2. HPが少なくなったらバーの色を赤くする
+  if percentage < 30
+    `#{@hp_bar}.style.backgroundColor = "red"`
+  else
+    `#{@hp_bar}.style.backgroundColor = "#4caf50"`
+  end
+
+  # 3. ダメージ演出（画面を一瞬赤くする）
+  `#{@flash_panel}.style.opacity = 0.5`
+  `setTimeout(function() { #{@flash_panel}.style.opacity = 0 }, 100)`
+
+  # --- 見た目の操作ここまで ---
+
   `#{@enemy_hp_span}.innerText = #{target.hp}`
-  
+
   # ログを表示
   msg = "#{player.name}の攻撃！#{target.name}に#{damage}のダメージ！(残りHP:#{target.hp})<br>"
   `#{@log_area}.innerHTML += #{msg}`
