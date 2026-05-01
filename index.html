@@ -2,14 +2,22 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Ruby RPG 第6回</title>
+  <title>Ruby RPG 第7回</title>
 </head>
 <body>
-  <h1>Ruby RPG 第6回 演出編（DOM操作）</h1>
+  <h1>Ruby RPG 第7回 演出編（DOM操作）</h1>
 
   <div style="margin-bottom: 10px;">
     <label for="player-name">冒険者の名前：</label>
     <input type="text" id="player-name" placeholder="名前を入力">
+  </div>
+
+  <div id="player-area" style="background-color: #e0f0ff; padding: 10px; margin-bottom: 10px; border: 1px solid #2196f3;">
+    <strong>勇者（あなた）</strong> <br>
+    <div style="width: 100%; height: 15px; background-color: #ccc; border-radius: 5px; overflow: hidden; margin: 5px 0;">
+      <div id="player-hp-bar" style="width: 100%; height: 100%; background-color: #2196f3; transition: width 0.3s;"></div>
+    </div>
+    HP: <span id="player-hp">---</span>
   </div>
 
   <div id="enemy-area" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
@@ -28,8 +36,12 @@
     ここにバトルの記録が出ます...
   </div>
 
-  <button id="action-button" style="margin-top: 10px;">冒険に出る！</button>
-  <button id="special-button" style="margin-top: 10px;">必殺技！</button>
+  <div id="command-menu" style="display: flex; gap: 10px;">
+    <button id="attack-btn" style="padding: 10px 20px;">こうげき</button>
+    <button id="heal-btn" style="padding: 10px 20px;">かいふく</button>
+  </div>
+
+  <button id="action-button" style="margin-top: 10px;">冒険の準備（リセット）</button>
 
   <script type="module" src="/app/main_loader.js"></script>
 </body>
