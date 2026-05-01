@@ -26,17 +26,25 @@ git checkout step/06
 数字の代わりに伸び縮みするバーをHTMLで作ります。
 
 ```html
-<div id="enemy-area" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
+<div id="enemy-area"
+  style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px;">
   <strong>モンスター</strong> <br>
   
-  <div style="width: 100%; height: 20px; background-color: #ccc; border-radius: 10px; overflow: hidden;">
-    <div id="enemy-hp-bar" style="width: 100%; height: 100%; background-color: #4caf50; transition: width 0.3s;"></div>
+  <div style="width: 100%; height: 20px; background-color: #ccc;
+    border-radius: 10px; overflow: hidden;">
+    <div id="enemy-hp-bar"
+      style="width: 100%; height: 100%; background-color: #4caf50;
+      transition: width 0.3s;"></div>
   </div>
 
   いまの敵のHP: <span id="enemy-hp">---</span>
 </div>
 
-<div id="flash-panel" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: red; opacity: 0; pointer-events: none; transition: opacity 0.1s;"></div>
+<div id="flash-panel"
+  style="position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%; background: red; opacity: 0;
+  pointer-events: none; transition: opacity 0.1s;"></div>
+
 ```
 
 ## 2. Rubyから「見た目」を操る (main.rb)
