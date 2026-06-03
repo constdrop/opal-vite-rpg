@@ -7,6 +7,7 @@
 
 * HPが減ってピンチ（20%以下）になったら、画面やメーターに「ピンチ用CSSクラス」をつける
 * ピンチのときに画面が赤くピコピコ点滅するアニメーションを作る
+* 3体の敵が順番に出現し、最後まで倒すとクリアになる
 * 安全な状態に戻ったら（回復したら）、自動で元のデザインの服に着せ替える
 
 ## 使うファイル
@@ -67,7 +68,7 @@ git checkout step/08
 
 ## 2. Ruby側でプレイヤーエリアを取得する (main.rb)
 
-着せ替えを指示するために、プレイヤーエリアとHPバーの要素を新しく変数に登録します。
+着せ替えを指示するために、プレイヤーエリアとHPバーの要素を新しく変数に登録します。敵のHP表示や次の敵への切り替えは、「こうげき」ボタンが押されたときの処理の中で行います。
 
 ```ruby
 # 1. HTMLの要素を見つける（前回のコードに追加）
@@ -81,7 +82,7 @@ git checkout step/08
 
 ## 3. HPをチェックしてクラスを切り替える (main.rb)
 
-第7回で作った「敵の反撃（`enemy_turn`）」と、新しく作る「回復」の処理のあとに、「HPが20%以下ならピンチの服を着せる、そうじゃなければ脱がせる」という条件分岐を入れます。
+第7回で作った「敵の反撃（`enemy_turn`）」と、新しく作る「回復」の処理のあとに、「HPが20%以下ならピンチの服を着せる、そうじゃなければ脱がせる」という条件分岐を入れます。敵を倒したら次の敵を出す処理は、`attack` ボタンの中で行います。
 
 ```ruby
 # プレイヤーの見た目をアップデートする新しいメソッド
@@ -101,21 +102,25 @@ def update_player_style
   end
 end
 
-# 敵の反撃（ enemy_turn メソッドの中身を改造 ）
+# 敵の反撃
 def enemy_turn
   return if @enemy.hp <= 0
 
-  damage = rand(Math.floor(@enemy.power * 0.8)..Math.floor(@enemy.power * 1.2))
+  min_damage = [(@enemy.power * 0.6).to_i, 3].max
+  max_damage = @enemy.power
+  damage = rand(min_damage..max_damage)
   @player.receive_damage(damage)
   
   percent = (@player.hp.to_f / @player.max_hp * 100).to_i
   `#{@player_hp_bar}.style.width = #{percent} + "%"`
-  `document.getElementById('player-hp').innerText = #{@player.hp}`
+  `#{@player_hp_span}.innerText = #{@player.hp}`
   
   # ★ここで見た目のチェックを呼び出す！
   update_player_style()
 
-  `#{@log_area}.innerHTML += "敵の反撃！#{damage}のダメージ！<br>"`
+  msg = "<b>#{@enemy.name}のはんげき！#{@player.name}は#{damage}のダメージを受けた！</b><br>"
+  `#{@log_area}.innerHTML += #{msg}`
+  `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
   
   if @player.hp <= 0
     `#{@log_area}.innerHTML += "<h2 style='color:red;'>GAME OVER...</h2>"`
@@ -123,7 +128,7 @@ def enemy_turn
   end
 end
 
-# 回復（ heal-btn ）の中でも見た目チェックを呼ぶ
+# 回復（ heal-btn ）でも見た目チェックを呼ぶ
 `#{@heal_button}.addEventListener('click', function() {`
   if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
     heal_amount = rand(8..15)
@@ -131,13 +136,75 @@ end
 
     percent = (@player.hp.to_f / @player.max_hp * 100).to_i
     `#{@player_hp_bar}.style.width = #{percent} + "%"`
-    `document.getElementById('player-hp').innerText = #{@player.hp}`
+    `#{@player_hp_span}.innerText = #{@player.hp}`
 
     # ★回復したあとも必ず見た目を更新
     update_player_style()
   end
 `})`
 
+```
+
+## 4. 敵のHP表示と次の敵を出す処理 (main.rb)
+
+「こうげき」ボタンの中で、敵のHP表示を更新し、HPが0になったら次の敵を出します。敵名は、HPバーの下に「いまの敵: 〇〇 (HP: △△)」のように表示されます。
+
+```ruby
+# こうげきボタンが押されたとき
+`#{@attack_button}.addEventListener('click', function() {`
+  if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
+    # 1. プレイヤーの攻撃
+    attack(@player, @enemy, 5, 15)
+
+    # 2. 敵のHP表示を更新する
+    percentage = (@enemy.hp.to_f / @enemy.max_hp * 100).to_i
+    enemy_label = "#{@enemy.name} (HP: #{@enemy.hp})"
+    `#{@enemy_hp_span}.innerText = #{enemy_label}`
+    `#{@hp_bar}.style.width = #{percentage} + "%"`
+
+    if percentage < 30
+      `#{@hp_bar}.style.backgroundColor = "red"`
+    else
+      `#{@hp_bar}.style.backgroundColor = "#4caf50"`
+    end
+
+    if @enemy.hp > 0
+      # 3. 少し遅れて敵のターンが来る
+      `setTimeout(function() {`
+        enemy_turn()
+      `}, 800)`
+    else
+      # 4. 倒した敵の表示と次の敵への切り替え
+      defeat_msg = "<b>#{@enemy.name}をたおした！</b><br>"
+      `#{@log_area}.innerHTML += #{defeat_msg}`
+
+      if @enemy_count < @enemy_total_count
+        @enemy_count += 1
+
+        enemies = [
+          ["スライム", 26, 8],
+          ["ゴブリン", 34, 10],
+          ["ドラゴンのこども", 42, 12]
+        ]
+        enemy_data = enemies[@enemy_count - 1] || enemies[-1]
+        @enemy = Monster.new(enemy_data[0], enemy_data[1], enemy_data[2])
+
+        `#{@log_area}.innerHTML += ">> 次の敵があらわれた！<br>"`
+
+        next_percentage = (@enemy.hp.to_f / @enemy.max_hp * 100).to_i
+        next_enemy_label = "#{@enemy.name} (HP: #{@enemy.hp})"
+        `#{@enemy_hp_span}.innerText = #{next_enemy_label}`
+        `#{@hp_bar}.style.width = #{next_percentage} + "%"`
+        `#{@hp_bar}.style.backgroundColor = "#4caf50"`
+      else
+        `#{@log_area}.innerHTML += "<b>★すべての敵を撃破した！★</b>"`
+        `document.getElementById('command-menu').style.display = 'none'`
+      end
+
+      `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
+    end
+  end
+`})`
 ```
 
 ---
@@ -148,6 +215,8 @@ end
 JavaScriptのこの命令を使うと、HTML要素にCSSのクラス名をつけたり消したりできます。Rubyの中に直接「背景を赤くして、枠線を太くして…」とたくさん書くよりも、CSSにまとめておいて「クラス名だけを切り替える」ほうが、コードが圧倒的にスッキリします。
 * **アニメーションの連動**:
 CSS側で `infinite`（無限ループ）の点滅アニメーションを設定しておくことで、Rubyからは「ピンチだよ」と1回クラスをつけるだけで、画面がずっとピコピコ警告を出し続けてくれるようになります。
+* **複数の敵**:
+敵を1体倒したら終わりではなく、3体目まで順番に出すと、最後の敵までたどり着いたときにピンチ状態が見えやすくなります。
 
 ---
 
