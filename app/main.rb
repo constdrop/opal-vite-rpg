@@ -43,13 +43,15 @@ end
 # --- 2. HTML要素の取得 ---
 @log_area = `document.getElementById('log-area')`
 @button = `document.getElementById('action-button')`
+@attack_button = `document.getElementById('attack-btn')`
+@heal_button = `document.getElementById('heal-btn')`
 @player_name_input = `document.getElementById('player-name')`
 @enemy_hp_span = `document.getElementById('enemy-hp')`
 @hp_bar = `document.getElementById('enemy-hp-bar')`
 @flash_panel = `document.getElementById('flash-panel')`
-@heal_button = `document.getElementById('heal-btn')`
 @player_area = `document.getElementById('player-area')`
 @player_hp_bar = `document.getElementById('player-hp-bar')`
+@player_hp_span = `document.getElementById('player-hp')`
 
 # --- 3. 攻撃の仕組み（メソッド） ---
 def attack(player, target, min, max)
@@ -99,7 +101,8 @@ end
 
 # 敵の攻撃（敵のターン）の処理
 def enemy_turn
-  return if @enemy.hp <= 0
+  return if !@player || !@enemy
+  return if @enemy.hp <= 0 || @player.hp <= 0
 
   damage = rand(Math.floor(@enemy.power * 0.8)..Math.floor(@enemy.power * 1.2))
   @player.receive_damage(damage)
@@ -107,7 +110,7 @@ def enemy_turn
   # プレイヤーのHPバーを更新
   percent = (@player.hp.to_f / @player.max_hp * 100).to_i
   `#{@player_hp_bar}.style.width = #{percent} + "%"`
-  `document.getElementById('player-hp').innerText = #{@player.hp}`
+  `#{@player_hp_span}.innerText = #{@player.hp}`
 
   update_player_style()
   
@@ -121,7 +124,7 @@ def enemy_turn
 end
 
 # こうげきボタンが押されたとき
-`document.getElementById('attack-btn').addEventListener('click', function() {`
+`#{@attack_button}.addEventListener('click', function() {`
   if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
     # 1. プレイヤーの攻撃
     attack(@player, @enemy, 5, 15)
@@ -143,7 +146,6 @@ end
     `#{@log_area}.innerHTML = "名前を入力してください！"`
   else
     `#{@log_area}.innerHTML = "--- 冒険スタート！ ---<br>"`
-    `#{@button}.disabled = true`
     
     # ★ 設計図から実体（インスタンス）を作る！
     @player = Player.new(name)
@@ -154,7 +156,7 @@ end
     `#{@hp_bar}.style.width = "100%"`
     `#{@hp_bar}.style.backgroundColor = "#4caf50"`
     `#{@player_hp_bar}.style.width = "100%"`
-    `document.getElementById('player-hp').innerText = #{@player.hp}`
+    `#{@player_hp_span}.innerText = #{@player.hp}`
     `document.getElementById('command-menu').style.display = 'flex'`
     update_player_style()
   end
@@ -168,7 +170,7 @@ end
 
     percent = (@player.hp.to_f / @player.max_hp * 100).to_i
     `#{@player_hp_bar}.style.width = #{percent} + "%"`
-    `document.getElementById('player-hp').innerText = #{@player.hp}`
+    `#{@player_hp_span}.innerText = #{@player.hp}`
     update_player_style()
 
     msg = "#{@player.name}は#{heal_amount}かいふくした！ (HP:#{@player.hp}/#{@player.max_hp})<br>"
