@@ -26,10 +26,11 @@ end
 
 # モンスターの設計図
 class Monster
-  attr_accessor :name, :hp, :power
+  attr_accessor :name, :hp, :max_hp, :power
   def initialize(name, hp, power)
     @name = name
     @hp = hp
+    @max_hp = hp
     @power = power
   end
 
@@ -57,13 +58,12 @@ end
 def attack(player, target, min, max)
   damage = rand(min..max)
   target.receive_damage(damage)
-  
-  # 1. HPバーの長さを計算（現在のHP / 最大HP * 100）
-  # ※ 第5回のMonsterクラスに @max_hp を追加しておくと便利です
-  percentage = (target.hp.to_f / 30 * 100).to_i # 今回は最大30と仮定
+
+  percentage = (target.hp.to_f / target.max_hp * 100).to_i
+  enemy_label = "#{target.name} (HP: #{target.hp})"
+  `#{@enemy_hp_span}.innerText = #{enemy_label}`
   `#{@hp_bar}.style.width = #{percentage} + "%"`
 
-  # 2. HPが少なくなったらバーの色を赤くする
   if percentage < 30
     `#{@hp_bar}.style.backgroundColor = "red"`
   else
@@ -75,8 +75,6 @@ def attack(player, target, min, max)
   `setTimeout(function() { #{@flash_panel}.style.opacity = 0 }, 100)`
 
   # --- 見た目の操作ここまで ---
-
-  `#{@enemy_hp_span}.innerText = #{target.hp}`
 
   # ログを表示
   msg = "#{player.name}の攻撃！#{target.name}に#{damage}のダメージ！(残りHP:#{target.hp})<br>"
@@ -104,7 +102,9 @@ def enemy_turn
   return if !@player || !@enemy
   return if @enemy.hp <= 0 || @player.hp <= 0
 
-  damage = rand(5..15)
+  min_damage = [(@enemy.power * 0.6).to_i, 3].max
+  max_damage = @enemy.power
+  damage = rand(min_damage..max_damage)
   @player.receive_damage(damage)
   
   # プレイヤーのHPバーを更新
@@ -129,12 +129,41 @@ end
   if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
     # 1. プレイヤーの攻撃
     attack(@player, @enemy, 5, 15)
-    
+
     if @enemy.hp > 0
       # 2. 少し遅れて敵のターンが来る
       `setTimeout(function() {`
         enemy_turn()
       `}, 800)`
+    else
+      # 3. 倒した敵の表示と次の敵への切り替え
+      defeat_msg = "<b>#{@enemy.name}をたおした！</b><br>"
+      `#{@log_area}.innerHTML += #{defeat_msg}`
+
+      if @enemy_count < @enemy_total_count
+        @enemy_count += 1
+
+        enemies = [
+          ["スライム", 26, 8],
+          ["ゴブリン", 34, 10],
+          ["ドラゴンのこども", 42, 12]
+        ]
+        enemy_data = enemies[@enemy_count - 1] || enemies[-1]
+        @enemy = Monster.new(enemy_data[0], enemy_data[1], enemy_data[2])
+
+        `#{@log_area}.innerHTML += ">> 次の敵があらわれた！<br>"`
+
+        next_percentage = (@enemy.hp.to_f / @enemy.max_hp * 100).to_i
+        next_enemy_label = "#{@enemy.name} (HP: #{@enemy.hp})"
+        `#{@enemy_hp_span}.innerText = #{next_enemy_label}`
+        `#{@hp_bar}.style.width = #{next_percentage} + "%"`
+        `#{@hp_bar}.style.backgroundColor = "#4caf50"`
+      else
+        `#{@log_area}.innerHTML += "<b>★すべての敵を撃破した！★</b>"`
+        `document.getElementById('command-menu').style.display = 'none'`
+      end
+
+      `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
     end
   end
 `})`
@@ -151,9 +180,11 @@ end
     # ★ 設計図から実体（インスタンス）を作る！
     @player = Player.new(name)
     @enemy_count = 1
-    @enemy = Monster.new("スライム#{@enemy_count}", 30, 10)
+    @enemy_total_count = 3
+    @enemy = Monster.new("スライム", 26, 8)
     
-    `#{@enemy_hp_span}.innerText = #{@enemy.hp}`
+    enemy_label = "#{@enemy.name} (HP: #{@enemy.hp})"
+    `#{@enemy_hp_span}.innerText = #{enemy_label}`
     `#{@hp_bar}.style.width = "100%"`
     `#{@hp_bar}.style.backgroundColor = "#4caf50"`
     `#{@player_hp_bar}.style.width = "100%"`
