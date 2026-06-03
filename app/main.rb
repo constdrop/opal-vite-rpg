@@ -104,7 +104,7 @@ def enemy_turn
   return if !@player || !@enemy
   return if @enemy.hp <= 0 || @player.hp <= 0
 
-  damage = rand(Math.floor(@enemy.power * 0.8)..Math.floor(@enemy.power * 1.2))
+  damage = rand(5..15)
   @player.receive_damage(damage)
   
   # プレイヤーのHPバーを更新
@@ -116,6 +116,7 @@ def enemy_turn
   
   msg = "<b>#{@enemy.name}のはんげき！#{@player.name}は#{damage}のダメージを受けた！</b><br>"
   `#{@log_area}.innerHTML += #{msg}`
+  `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
 
   if @player.hp <= 0
     `#{@log_area}.innerHTML += "<h2 style='color:red;'>GAME OVER...</h2>"`
