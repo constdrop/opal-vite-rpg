@@ -43,11 +43,13 @@ end
 # --- 2. HTML要素の取得 ---
 @log_area = `document.getElementById('log-area')`
 @button = `document.getElementById('action-button')`
-@special_button = `document.getElementById('special-button')`
 @player_name_input = `document.getElementById('player-name')`
 @enemy_hp_span = `document.getElementById('enemy-hp')`
 @hp_bar = `document.getElementById('enemy-hp-bar')`
 @flash_panel = `document.getElementById('flash-panel')`
+@heal_button = `document.getElementById('heal-btn')`
+@player_area = `document.getElementById('player-area')`
+@player_hp_bar = `document.getElementById('player-hp-bar')`
 
 # --- 3. 攻撃の仕組み（メソッド） ---
 def attack(player, target, min, max)
@@ -80,15 +82,34 @@ def attack(player, target, min, max)
   `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
 end
 
+# プレイヤーHPの割合に合わせて見た目を切り替える
+def update_player_style
+  return unless @player
+
+  percent = (@player.hp.to_f / @player.max_hp * 100).to_i
+
+  if percent <= 20
+    `#{@player_area}.classList.add('danger-state')`
+    `#{@player_hp_bar}.classList.add('bar-danger')`
+  else
+    `#{@player_area}.classList.remove('danger-state')`
+    `#{@player_hp_bar}.classList.remove('bar-danger')`
+  end
+end
+
 # 敵の攻撃（敵のターン）の処理
 def enemy_turn
+  return if @enemy.hp <= 0
+
   damage = rand(Math.floor(@enemy.power * 0.8)..Math.floor(@enemy.power * 1.2))
   @player.receive_damage(damage)
   
   # プレイヤーのHPバーを更新
   percent = (@player.hp.to_f / @player.max_hp * 100).to_i
-  `document.getElementById('player-hp-bar').style.width = #{percent} + "%"`
+  `#{@player_hp_bar}.style.width = #{percent} + "%"`
   `document.getElementById('player-hp').innerText = #{@player.hp}`
+
+  update_player_style()
   
   msg = "<b>#{@enemy.name}のはんげき！#{@player.name}は#{damage}のダメージを受けた！</b><br>"
   `#{@log_area}.innerHTML += #{msg}`
@@ -101,14 +122,16 @@ end
 
 # こうげきボタンが押されたとき
 `document.getElementById('attack-btn').addEventListener('click', function() {`
-  # 1. プレイヤーの攻撃
-  attack(@player, @enemy, 5, 15)
-  
-  if @enemy.hp > 0
-    # 2. 少し遅れて敵のターンが来る
-    `setTimeout(function() {`
-      enemy_turn()
-    `}, 800)`
+  if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
+    # 1. プレイヤーの攻撃
+    attack(@player, @enemy, 5, 15)
+    
+    if @enemy.hp > 0
+      # 2. 少し遅れて敵のターンが来る
+      `setTimeout(function() {`
+        enemy_turn()
+      `}, 800)`
+    end
   end
 `})`
 
@@ -128,14 +151,34 @@ end
     @enemy = Monster.new("スライム#{@enemy_count}", 30, 10)
     
     `#{@enemy_hp_span}.innerText = #{@enemy.hp}`
+    `#{@hp_bar}.style.width = "100%"`
+    `#{@hp_bar}.style.backgroundColor = "#4caf50"`
+    `#{@player_hp_bar}.style.width = "100%"`
+    `document.getElementById('player-hp').innerText = #{@player.hp}`
+    `document.getElementById('command-menu').style.display = 'flex'`
+    update_player_style()
   end
 `})`
 
-# 必殺技ボタン
-`#{@special_button}.addEventListener('click', function() {`
-  # @player と @enemy が存在し、敵が生きているときだけ発動
-  if @player && @enemy && @enemy.hp > 0
-    `#{@log_area}.innerHTML += "<b>【必殺】ギガRubyスラッシュ！！</b><br>"`
-    attack(@player, @enemy, 30, 50)
+# かいふくボタン
+`#{@heal_button}.addEventListener('click', function() {`
+  if @player && @enemy && @player.hp > 0 && @enemy.hp > 0
+    heal_amount = rand(8..15)
+    @player.heal(heal_amount)
+
+    percent = (@player.hp.to_f / @player.max_hp * 100).to_i
+    `#{@player_hp_bar}.style.width = #{percent} + "%"`
+    `document.getElementById('player-hp').innerText = #{@player.hp}`
+    update_player_style()
+
+    msg = "#{@player.name}は#{heal_amount}かいふくした！ (HP:#{@player.hp}/#{@player.max_hp})<br>"
+    `#{@log_area}.innerHTML += #{msg}`
+    `#{@log_area}.scrollTop = #{@log_area}.scrollHeight`
+
+    if @enemy.hp > 0
+      `setTimeout(function() {`
+        enemy_turn()
+      `}, 800)`
+    end
   end
 `})`

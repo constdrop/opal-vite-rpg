@@ -2,20 +2,49 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Ruby RPG 第7回</title>
+  <title>Ruby RPG 第8回</title>
+  <style>
+    #player-area {
+      background-color: #e0f0ff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #2196f3;
+      transition: background-color 0.5s;
+    }
+
+    #player-area.danger-state {
+      animation: blink-red 1s infinite alternate;
+    }
+
+    #player-hp-bar {
+      width: 100%;
+      height: 100%;
+      background-color: #2196f3;
+      transition: width 0.3s, background-color 0.3s;
+    }
+
+    .bar-danger {
+      background-color: #f44336 !important;
+    }
+
+    @keyframes blink-red {
+      0% { background-color: #e0f0ff; }
+      100% { background-color: #ffcccc; border-color: red; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Ruby RPG 第7回 演出編（DOM操作）</h1>
+  <h1>Ruby RPG 第8回 演出編（CSSクラス切り替え）</h1>
 
   <div style="margin-bottom: 10px;">
     <label for="player-name">冒険者の名前：</label>
     <input type="text" id="player-name" placeholder="名前を入力">
   </div>
 
-  <div id="player-area" style="background-color: #e0f0ff; padding: 10px; margin-bottom: 10px; border: 1px solid #2196f3;">
+  <div id="player-area">
     <strong>勇者（あなた）</strong> <br>
     <div style="width: 100%; height: 15px; background-color: #ccc; border-radius: 5px; overflow: hidden; margin: 5px 0;">
-      <div id="player-hp-bar" style="width: 100%; height: 100%; background-color: #2196f3; transition: width 0.3s;"></div>
+      <div id="player-hp-bar"></div>
     </div>
     HP: <span id="player-hp">---</span>
   </div>
