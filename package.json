@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "vite": "^5.0.0",
-    "vite-plugin-opal": "^0.3.11"
+    "vite-plugin-opal": "^0.3.13"
   }
 }
