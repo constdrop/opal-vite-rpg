@@ -73,12 +73,12 @@ git checkout step/01
 
 ## 6. プロジェクトの準備
 
-この教材は opal-vite を使います。WindowsではBundlerを使わずにgemを直接入れます。
+この教材は opal-vite を使います。 Bundler を使って opal-vite などの gem をインストールします。
 
 ### 6-1. Rubyのgemを入れる
 
 ```bash
-gem install opal opal-vite
+bundle install
 ```
 
 ### 6-2. Nodeのパッケージを入れる
