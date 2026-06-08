@@ -5,8 +5,7 @@ export default defineConfig({
   plugins: [
     opal({
       loadPaths: ['./app'],
-      sourceMap: true,
-      useBundler: false
+      sourceMap: true
     })
   ]
 })
